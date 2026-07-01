@@ -1,5 +1,5 @@
 # Dockerfile
-FROM node:25
+FROM node:22-slim
 
 # Crear directorio de la aplicación
 WORKDIR /usr/src/app
@@ -8,8 +8,8 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY index.js .
 
-# Instalar dependencias
-RUN npm install
+# Instalar dependencias de forma reproducible desde package-lock.json
+RUN npm ci --omit=dev
 
 # Exponer el puerto de la aplicación
 EXPOSE 3000
