@@ -27,10 +27,11 @@ const writeDatabase = (data) => {
 
 // CRUD de usuarios
 app.get('/', (req, res) => {
-    res.json({
+    const msg = {
         message: 'Servidor en ejecucion en el puerto 3000',
         status: 200
-    });
+    }
+    res.json(msg);
 });
 
 // 1. Obtener todos los usuarios
@@ -48,12 +49,14 @@ app.post('/users', (req, res) => {
         return res.status(400).json({ error: 'ID, name, and email are required' });
     }
 
+    // Verifica si el usuario ya existe
     if (users.some((user) => user.id === newUser.id)) {
         return res.status(400).json({ error: 'User with the same ID already exists' });
     }
 
     users.push(newUser);
     writeDatabase(users);
+
     res.status(201).json({ message: 'User created successfully', user: newUser });
 });
 
@@ -71,6 +74,7 @@ app.put('/users/:id', (req, res) => {
 
     users[userIndex] = { ...users[userIndex], ...updatedUser };
     writeDatabase(users);
+
     res.json({ message: 'User updated successfully', user: users[userIndex] });
 });
 
@@ -86,6 +90,7 @@ app.delete('/users/:id', (req, res) => {
     }
 
     writeDatabase(filteredUsers);
+
     res.json({ message: 'User deleted successfully' });
 });
 
@@ -93,21 +98,20 @@ app.delete('/users/:id', (req, res) => {
 app.get('/users/:id', (req, res) => {
     const users = readDatabase();
     const userId = req.params.id;
-    const user = users.find((u) => u.id === userId);
+    const updatedUser = req.body;
 
-    if (!user) {
+    const userIndex = users.findIndex((user) => user.id === userId);
+
+    if (userIndex === -1) {
         return res.status(404).json({ error: 'User not found' });
     }
+
+    const user = users[userIndex]
 
     res.json({ user });
 });
 
-//* Exportar app para los tests
-module.exports = app;
-
-// Iniciar el servidor solo si se ejecuta este archivo directamente
-if (require.main === module) {
-    app.listen(PORT, '0.0.0.0', () => {
-        console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
-    });
-}
+// Iniciar el servidor
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Servidor corriendo en http://0.0.0.0:${PORT}`);
+});
