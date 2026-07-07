@@ -14,13 +14,7 @@ pipeline {
     stages {
         stage('Construir Imagen Docker') {
             steps {
-                sh 'docker build -t hola-mundo-node:latest .'
-            }
-        }
-        stage('Ejecutar tests') {
-            steps {
-                // Ejecuta los tests de Jest usando la imagen limpia que se acaba de compilar
-                sh 'docker run --rm hola-mundo-node:latest yarn test'
+                sh 'docker build --no-cache -t hola-mundo-node:latest .'
             }
         }
  
@@ -34,6 +28,12 @@ pipeline {
                     # Ejecutar el nuevo contenedor de la aplicación
                     docker run -d --name hola-mundo-node -p 3000:3000 hola-mundo-node:latest
                 '''
+            }
+        }
+        stage('Ejecutar tests') {
+            steps {
+                // Ejecuta los tests de Jest usando la imagen limpia que se acaba de compilar
+                sh 'docker run --rm hola-mundo-node:latest yarn test'
             }
         }
     }
